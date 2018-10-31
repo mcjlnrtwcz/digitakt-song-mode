@@ -1,6 +1,6 @@
 from copy import deepcopy
 from threading import Thread, Event
-from time import sleep
+from time import perf_counter, sleep
 
 
 class Pattern:
@@ -97,6 +97,12 @@ class SequencerEngine(Thread):
         self._midi_out = midi_out
         self.counter = Counter()
         self._stop_event = Event()
+        self._pulse_duration = 60.0 / self._sequence.tempo / 24.0
+
+    def _pulse(self):
+        start = perf_counter()
+        while perf_counter() < start + self._pulse_duration:
+            sleep(0.0001)
 
     def run(self):
         # Set first pattern
@@ -120,7 +126,7 @@ class SequencerEngine(Thread):
                 self._midi_out.send_message([0xC0, event.pattern_id - 1])
                 print(event.pattern_id)
 
-            sleep(60.0 / self._sequence.tempo / 24.0)
+            self._pulse()
             self.counter.increment()
         self._midi_out.send_message([0xFC])  # Stop
 
@@ -170,4 +176,4 @@ class Sequencer:
             print('port already opened')
 
     def load_sequence(self, sequence):
-        self._sequence = Sequence(160, sequence)
+        self._sequence = Sequence(135, sequence)
