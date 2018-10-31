@@ -22,7 +22,6 @@ class PatternSequence:
 
 
 class Counter:
-    # TODO: What about other than 4/4?
 
     def __init__(self):
         self.measures = 1  # TODO: readonly?
@@ -111,7 +110,7 @@ class SequencerEngine(Thread):
         sleep(0.25)  # Compensate for Digitakt's lag
 
         self._midi_out.send_message([0xFA])  # Start
-        while not self._stop_event.is_set():  # TODO: Stop at the end of the sequence
+        while not self._stop_event.is_set():
             self._midi_out.send_message([0xF8])  # Clock
 
             event = self._sequence.get_event(self.counter)
