@@ -3,6 +3,8 @@
 import os
 import json
 import tkinter as tk
+from tkinter import filedialog
+import logging
 
 import rtmidi
 
@@ -86,7 +88,7 @@ class SongModeGUI:
         root.after(42, self.update_counter)
 
     def load_file(self):
-            path = tk.filedialog.askopenfilename(
+            path = filedialog.askopenfilename(
                 initialdir=os.path.dirname(os.path.abspath(__file__)),
                 title='Select sequence to load',
                 filetypes=(('JSON files', '*.json'), )
@@ -106,12 +108,17 @@ class SongModeGUI:
                 port_id = self.midi_out_choices.index(self.midi_out_name.get())
                 self.sequencer.set_midi_out(port_id)
                 self.sequencer.start()
-            except:
-                print('midi out name not in midi choices list')
+            except ValueError:
+                logging.error('Name of selected MIDI output is invalid.')
 
 
-midi_out = rtmidi.MidiOut()
-sequencer = Sequencer(midi_out)
-root = tk.Tk()
-gui = SongModeGUI(root, sequencer)
-root.mainloop()
+if __name__ == '__main__':
+    logging.basicConfig(
+        format='[%(asctime)s][%(levelname)s] %(message)s',
+        level=logging.INFO
+    )
+    midi_out = rtmidi.MidiOut()
+    sequencer = Sequencer(midi_out)
+    root = tk.Tk()
+    gui = SongModeGUI(root, sequencer)
+    root.mainloop()

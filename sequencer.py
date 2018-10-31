@@ -2,6 +2,8 @@ from copy import deepcopy
 from threading import Thread, Event
 from time import perf_counter, sleep
 
+import logging
+
 
 class Pattern:
 
@@ -10,6 +12,8 @@ class Pattern:
         self.bank_id = bank_id
         self.length = length
 
+    def __str__(self):
+        return f'{self.bank_id}{self.pattern_id}'
 
 class PatternSequence:
 
@@ -78,7 +82,6 @@ class Sequence:
             for i in range(24):
                 temp_count.increment()
             if elem.timestamp == temp_count:
-                print(temp_count)
                 return self._patterns.pop(0).pattern
         else:
             if counter == self._stop_event:
@@ -104,6 +107,7 @@ class SequencerEngine(Thread):
             sleep(0.0001)
 
     def run(self):
+        logging.info(f'[{self.counter}] Sequencer started.')
         # Set first pattern
         event = self._sequence.get_event(self.counter, force=True)
         self._midi_out.send_message([0xC0, event.pattern_id - 1])  # MIDI messages count from 0, move to midi wrapper
@@ -115,7 +119,6 @@ class SequencerEngine(Thread):
 
             event = self._sequence.get_event(self.counter)
             if event == 'stop':
-                print('fertig')
                 break
             if event:
                 # Change pattern or whatever
@@ -123,11 +126,12 @@ class SequencerEngine(Thread):
                 # Channel Voice Messages [nnnn = 0-15 (MIDI Channel Number 1-16)] 
                 # 1100nnnn	0ppppppp	Program Change. This message sent when the patch number changes. (ppppppp) is the new program number.
                 self._midi_out.send_message([0xC0, event.pattern_id - 1])
-                print(event.pattern_id)
+                logging.info(f'[{self.counter}] Changing pattern to {event}.')
 
             self._pulse()
             self.counter.increment()
         self._midi_out.send_message([0xFC])  # Stop
+        logging.info(f'[{self.counter}] Sequencer stopped.')
 
     def stop(self):
         self._stop_event.set()
@@ -149,7 +153,7 @@ class Sequencer:
             self._engine.start()
             self.is_playing = True
         else:
-            print('sequence is not set')
+            logging.warning('Cannot start sequencer. Sequence is not set.')
 
     def stop(self):
         if self._engine:
@@ -172,7 +176,7 @@ class Sequencer:
         if not self._midi_out.is_port_open():
             self._midi_out.open_port(midi_out_id)
         else:
-            print('port already opened')
+            logging.warning('Selected MIDI port is already opened.')
 
     def load_sequence(self, sequence):
         self._sequence = Sequence(135, sequence)
