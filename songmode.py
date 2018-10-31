@@ -25,7 +25,7 @@ class SongModeGUI:
 
         # Widgets
 
-        self.counter_label = tk.Label(self.root, text='Counter: -1')
+        self.counter_label = tk.Label(self.root, text='Counter: -1', font=('Menlo', '14'))
         self.counter_label.grid(row=0, column=0, sticky=tk.W, padx=8)
 
         self.toggle_seq_btn = tk.Button(
@@ -94,10 +94,7 @@ class SongModeGUI:
                 filetypes=(('JSON files', '*.json'), )
             )
             with open(path) as sequence_file:
-                # TODO: validate file
-                self.sequencer.load_sequence(
-                    json.load(sequence_file)['sequence']
-                )
+                self.sequencer.load_sequence(json.load(sequence_file))
 
     def toggle_seq(self):
         # TODO: Turn on/off update_counter?

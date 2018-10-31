@@ -15,6 +15,7 @@ class Pattern:
     def __str__(self):
         return f'{self.bank_id}{self.pattern_id}'
 
+
 class PatternSequence:
 
     def __init__(self, pattern, timestamp):
@@ -38,7 +39,8 @@ class Counter:
             and self.pulses == other.pulses)
 
     def __str__(self):
-        return f'{self.measures}.{self.beats}.{self.pulses}'
+        # This assumes that songs won't be longer than 999 measures
+        return f'{str(self.measures).zfill(3)}.{self.beats}.{str(self.pulses).zfill(2)}'
 
     def increment(self):
         if self.pulses < 24:
@@ -55,13 +57,13 @@ class Counter:
 class Sequence:
     # TODO: next() returns a Pattern (use repetitions from PatternSequence)
 
-    def __init__(self, tempo, raw_sequence):
-        self.tempo = tempo  # TODO: From file?
+    def __init__(self, tempo, sequence):
+        self.tempo = tempo
         self._patterns_blueprint = []
         self._patterns = []
 
         last_event = Counter()
-        for index, element in enumerate(raw_sequence):
+        for index, element in enumerate(sequence):
             pattern = Pattern(element['pattern'], element['bank'], element['length'])
             if index != 0:
                 last_event.measures += element['length'] * element['repetitions']
@@ -69,7 +71,7 @@ class Sequence:
             self._patterns_blueprint.append(pattern_seq)
         self._patterns = deepcopy(self._patterns_blueprint)
         self._stop_event = deepcopy(last_event)
-        self._stop_event.measures += raw_sequence[-1]['length'] * raw_sequence[-1]['repetitions']
+        self._stop_event.measures += sequence[-1]['length'] * sequence[-1]['repetitions']
 
     def get_event(self, counter, force=False):
         # This is a bit stupid and off by one pattern
@@ -178,5 +180,5 @@ class Sequencer:
         else:
             logging.warning('Selected MIDI port is already opened.')
 
-    def load_sequence(self, sequence):
-        self._sequence = Sequence(135, sequence)
+    def load_sequence(self, sequence_data):
+        self._sequence = Sequence(**sequence_data)
