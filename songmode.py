@@ -2,7 +2,6 @@
 
 import os
 import json
-from tkinter import Tk, Label, Button, StringVar, OptionMenu, Button, filedialog
 import tkinter as tk
 
 import rtmidi
@@ -24,10 +23,10 @@ class SongModeGUI:
 
         # Widgets
 
-        self.counter_label = Label(self.root, text='Counter: -1')
+        self.counter_label = tk.Label(self.root, text='Counter: -1')
         self.counter_label.grid(row=0, column=0, sticky=tk.W, padx=8)
 
-        self.toggle_seq_btn = Button(
+        self.toggle_seq_btn = tk.Button(
             self.root,
             text='Start/stop',
             command=self.toggle_seq
@@ -36,7 +35,7 @@ class SongModeGUI:
 
         # MIDI output selector
 
-        self.midi_out_name = StringVar(self.root)  # TODO: as property?
+        self.midi_out_name = tk.StringVar(self.root)  # TODO: as property?
 
         self.midi_out_frame = tk.Frame(self.root)
         self.midi_out_frame.grid(
@@ -52,7 +51,7 @@ class SongModeGUI:
         self.midi_out_label.grid(row=0, column=0, sticky=tk.W)
 
         self.midi_out_choices = self.sequencer.get_midi_outs()
-        self.midi_out_selector = OptionMenu(
+        self.midi_out_selector = tk.OptionMenu(
             self.midi_out_frame,
             self.midi_out_name,
             *self.midi_out_choices
@@ -61,7 +60,7 @@ class SongModeGUI:
 
         # Open sequence
 
-        self.load_btn = Button(
+        self.load_btn = tk.Button(
             self.root,
             text='Open sequence',
             command=self.load_file
@@ -87,7 +86,7 @@ class SongModeGUI:
         root.after(42, self.update_counter)
 
     def load_file(self):
-            path = filedialog.askopenfilename(
+            path = tk.filedialog.askopenfilename(
                 initialdir=os.path.dirname(os.path.abspath(__file__)),
                 title='Select sequence to load',
                 filetypes=(('JSON files', '*.json'), )
@@ -113,6 +112,6 @@ class SongModeGUI:
 
 midi_out = rtmidi.MidiOut()
 sequencer = Sequencer(midi_out)
-root = Tk()
+root = tk.Tk()
 gui = SongModeGUI(root, sequencer)
 root.mainloop()

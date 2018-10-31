@@ -1,5 +1,4 @@
 # TODO
-* cleanup tkinter imports
 * configure logger
 * block midi out option menu when running
 * block bpm when running
