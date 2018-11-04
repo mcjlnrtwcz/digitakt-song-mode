@@ -21,12 +21,12 @@ class SongModeGUI:
 
         self.root.geometry('320x160+0+0')
         self.root.title('Digisong')
-        root.after(0, self.update_counter)
+        root.after(0, self.refresh_position)
 
         # Widgets
 
-        self.counter_label = tk.Label(self.root, text='Counter: -1', font=('Menlo', '14'))
-        self.counter_label.grid(row=0, column=0, sticky=tk.W, padx=8)
+        self.position_label = tk.Label(self.root, text='Position: N/A', font=('Menlo', '14'))
+        self.position_label.grid(row=0, column=0, sticky=tk.W, padx=8)
 
         self.toggle_seq_btn = tk.Button(
             self.root,
@@ -77,15 +77,15 @@ class SongModeGUI:
         self.root.columnconfigure(0, weight=2)
         self.root.columnconfigure(1, weight=2)
 
-    def update_counter(self):
+    def refresh_position(self):
         if self.sequencer.is_playing:
-            self.counter_label.config(
-                text=f'Counter: {self.sequencer.get_counter()}'
+            self.position_label.config(
+                text=f'Position: {self.sequencer.get_position()}'
             )
         else:
-            self.counter_label.config(text='Counter: 1.1.1')
-        self.counter_label.update()  # TODO
-        root.after(42, self.update_counter)
+            self.position_label.config(text='Position: N/A')
+        self.position_label.update()  # TODO
+        root.after(42, self.refresh_position)
 
     def load_file(self):
             path = filedialog.askopenfilename(
@@ -97,7 +97,7 @@ class SongModeGUI:
                 self.sequencer.load_sequence(json.load(sequence_file))
 
     def toggle_seq(self):
-        # TODO: Turn on/off update_counter?
+        # TODO: Turn on/off refresh_position?
         if self.sequencer.is_playing:
             self.sequencer.stop()
         else:

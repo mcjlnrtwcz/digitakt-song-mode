@@ -3,3 +3,6 @@ env:
 
 install:
 	pip3 install -r requirements.txt
+
+tests:
+	python3 -m unittest
