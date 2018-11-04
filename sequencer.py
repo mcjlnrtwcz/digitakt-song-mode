@@ -77,12 +77,40 @@ class Sequence:
         self._patterns = deepcopy(self._patterns_blueprint)
 
 
+class MIDIWrapper:
+
+    BANKS = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H')
+
+    def __init__(self, channel, midi_out):
+        self._channel = channel - 1  # TODO: Convert to hex?
+        self._midi_out = midi_out
+
+    def change_pattern(self, bank, pattern):
+        try:
+            bank_number = self.BANKS.index(bank)
+        except ValueError:
+            logging.error(f'Cannot change pattern: bank {bank} is invalid')
+        self._midi_out.send_message([
+            0xC0 + self._channel,
+            (pattern - 1) + bank_number * 16
+        ])  # TODO: Convert to hex?
+
+    def start(self):
+        self._midi_out.send_message([0xFA])
+
+    def stop(self):
+        self._midi_out.send_message([0xFC])
+
+    def clock(self):
+        self._midi_out.send_message([0xF8])
+
+
 class SequencerEngine(Thread):
 
     def __init__(self, sequence, midi_out):
         super().__init__()
         self._sequence = sequence
-        self._midi_out = midi_out
+        self._midi = MIDIWrapper(0, midi_out)
         self._pulsestamp = 0
         self._stop_event = Event()
         self._pulse_duration = 60.0 / self._sequence.tempo / 24.0
@@ -97,35 +125,31 @@ class SequencerEngine(Thread):
 
         # Set first pattern
         event = self._sequence.get_event(self._pulsestamp)
-        self._midi_out.send_message([0xC0, event.pattern_id - 1])  # MIDI messages count from 0, move to midi wrapper
+        self._midi.change_pattern(event.bank_id, event.pattern_id)
         logging.info(f'[{self.get_position()}] Changing pattern to {event}.')
         # TODO; Is sleep below useless since introduction of warm-up?
         sleep(0.25)  # Compensate for Digitakt's lag
 
         # Warm-up
         for pulse in range(24 * 4):
-            self._midi_out.send_message([0xF8])  # Clock
+            self._midi.clock()
             self._pulse()
 
-        self._midi_out.send_message([0xFA])  # Start
+        self._midi.start()
         while not self._stop_event.is_set():
-            self._midi_out.send_message([0xF8])  # Clock
+            self._midi.clock()
 
             event = self._sequence.get_event(self._pulsestamp)
             if event == 'stop':
                 break
             if event:
-                """"
-                Channel Voice Messages [nnnn = 0-15 (MIDI Channel Number 1-16)]
-                1100nnnn 0ppppppp Program Change. This message sent when the patch number changes. (ppppppp) is the new program number.
-                """
-                self._midi_out.send_message([0xC0, event.pattern_id - 1])
+                self._midi.change_pattern(event.bank_id, event.pattern_id)
                 logging.info(f'[{self.get_position()}] Changing pattern to {event}.')
 
             self._pulse()
             self._pulsestamp += 1
 
-        self._midi_out.send_message([0xFC])  # Stop
+        self._midi.stop()
         logging.info(f'[{self.get_position()}] Sequencer stopped.')
 
         self._sequence.reset()
