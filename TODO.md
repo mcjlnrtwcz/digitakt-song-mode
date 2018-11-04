@@ -1,4 +1,5 @@
 # TODO
+* get rid of magic numbers, and 24 * 4
 * midi wrapper
 * configurable midi channel, closing and opening ports as necessary - check if requested port exists etc.
 * handle muting tracks

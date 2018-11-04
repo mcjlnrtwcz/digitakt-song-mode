@@ -64,14 +64,10 @@ class Sequence:
         self._stop_event = last_event_pulses
         self._stop_event += sequence[-1]['length'] * sequence[-1]['repetitions'] * 24 * 4
 
-    def get_event(self, pulsestamp, force=False):
-        # This is a bit stupid and off by one pattern
-        # What is the first pattern and how to send it?
+    def get_event(self, pulsestamp):
         if len(self._patterns) > 0:
-            if force:
-                return self._patterns.pop(0).pattern
             next_pattern_sequence = self._patterns[0]
-            if next_pattern_sequence.pulsestamp - 24 == pulsestamp:  # TODO: Magic number
+            if next_pattern_sequence.pulsestamp - 24 <= pulsestamp:  # TODO: Magic number
                 return self._patterns.pop(0).pattern
         else:
             if pulsestamp == self._stop_event:
@@ -87,7 +83,7 @@ class SequencerEngine(Thread):
         super().__init__()
         self._sequence = sequence
         self._midi_out = midi_out
-        self._pulsestamp = 0  # In pulses
+        self._pulsestamp = 0
         self._stop_event = Event()
         self._pulse_duration = 60.0 / self._sequence.tempo / 24.0
 
@@ -100,8 +96,9 @@ class SequencerEngine(Thread):
         logging.info(f'[{self.get_position()}] Sequencer started.')
 
         # Set first pattern
-        event = self._sequence.get_event(self._pulsestamp, force=True)
+        event = self._sequence.get_event(self._pulsestamp)
         self._midi_out.send_message([0xC0, event.pattern_id - 1])  # MIDI messages count from 0, move to midi wrapper
+        logging.info(f'[{self.get_position()}] Changing pattern to {event}.')
         # TODO; Is sleep below useless since introduction of warm-up?
         sleep(0.25)  # Compensate for Digitakt's lag
 
