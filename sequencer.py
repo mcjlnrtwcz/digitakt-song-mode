@@ -127,12 +127,14 @@ class SequencerEngine(Thread):
 
             self._pulse()
             self._pulsestamp += 1
+
         self._midi_out.send_message([0xFC])  # Stop
         logging.info(f'[{self.get_position()}] Sequencer stopped.')
 
+        self._sequence.reset()
+
     def stop(self):
         self._stop_event.set()
-        self._sequence.reset()
 
     def get_position(self):
         return Position(self._pulsestamp)
@@ -143,7 +145,6 @@ class Sequencer:
     def __init__(self, midi_out, sequence=None):
         self._midi_out = midi_out
         self._sequence = sequence
-        self.is_playing = False  # TODO: read only
         self._engine = None
 
     def start(self):
@@ -151,32 +152,34 @@ class Sequencer:
         if self._sequence:
             self._engine = SequencerEngine(self._sequence, self._midi_out)
             self._engine.start()
-            self.is_playing = True
         else:
             logging.warning('Cannot start sequencer. Sequence is not set.')
 
     def stop(self):
-        if self._engine:
+        if self._engine.is_alive():
             self._engine.stop()
             self._engine.join()
-        self._engine = None
-        self._midi_out.close_port()
-        self.is_playing = False
+        else:
+            logging.warning('Sequencer has already been stopped')
 
     def get_position(self):
-        if self._engine and self._engine.isAlive():
+        if self._engine and self._engine.is_alive():
             return str(self._engine.get_position())
 
     def get_midi_outs(self):
         return self._midi_out.get_ports()
 
     def set_midi_out(self, midi_out_id):
-        # TODO: Does that out really exists? GUI should update the list
-        # TODO: Check if port changed and then open it again???
         if not self._midi_out.is_port_open():
             self._midi_out.open_port(midi_out_id)
         else:
-            logging.warning('Selected MIDI port is already opened.')
+            logging.debug('Selected MIDI port is already opened.')
 
     def load_sequence(self, sequence_data):
         self._sequence = Sequence(**sequence_data)
+
+    @property
+    def is_playing(self):
+        if self._engine:
+            return self._engine.is_alive()
+        return False

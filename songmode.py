@@ -82,6 +82,8 @@ class SongModeGUI:
             self.position_label.config(
                 text=f'Position: {self.sequencer.get_position()}'
             )
+            if self.sequencer.get_position() == None:
+                print('get_position() returned None')
         else:
             self.position_label.config(text='Position: N/A')
         self.position_label.update()  # TODO

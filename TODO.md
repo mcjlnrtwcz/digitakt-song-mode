@@ -1,7 +1,6 @@
 # TODO
-* counter none, restart requires double click
 * midi wrapper
-* configurable midi channel
+* configurable midi channel, closing and opening ports as necessary - check if requested port exists etc.
 * handle muting tracks
 * block midi out option menu when running
 * block bpm when running
