@@ -6,3 +6,6 @@ install:
 
 tests:
 	python3 -m unittest
+
+style:
+	pycodestyle . --exclude=./lib

@@ -14,7 +14,11 @@ class Position:
 
     def __str__(self):
         # This assumes that songs won't be longer than 999 measures
-        return f'{str(self.measures).zfill(3)}.{self.beats}.{str(self.pulses).zfill(2)}'
+        return '{}.{}.{}'.format(
+            str(self.measures).zfill(3),
+            self.beats,
+            str(self.pulses).zfill(2)
+        )
 
 
 class Pattern:
@@ -35,7 +39,11 @@ class PatternSequence:
         self.pulsestamp = pulsestamp
 
     def __str__(self):
-        return f'{self.pattern.bank_id}{self.pattern.pattern_id} @ {Position(self.pulsestamp)}'
+        return '{}{} @ {}'.format(
+            self.pattern.bank_id,
+            self.pattern.pattern_id,
+            Position(self.pulsestamp)
+        )
 
 
 class Sequence:
@@ -55,19 +63,23 @@ class Sequence:
                 pattern_sequence['length']
             )
             if index != 0:
-                last_event_pulses += pattern_sequence['length'] * pattern_sequence['repetitions'] * 24 * 4
+                last_event_pulses += (pattern_sequence['length']
+                                      * pattern_sequence['repetitions']
+                                      * 24 * 4)
             pattern_seq = PatternSequence(pattern, last_event_pulses)
             self._patterns_blueprint.append(pattern_seq)
 
         self._patterns = deepcopy(self._patterns_blueprint)  # For reset
 
         self._stop_event = last_event_pulses
-        self._stop_event += sequence[-1]['length'] * sequence[-1]['repetitions'] * 24 * 4
+        self._stop_event += (sequence[-1]['length']
+                             * sequence[-1]['repetitions']
+                             * 24 * 4)
 
     def get_event(self, pulsestamp):
         if len(self._patterns) > 0:
             next_pattern_sequence = self._patterns[0]
-            if next_pattern_sequence.pulsestamp - 24 <= pulsestamp:  # TODO: Magic number
+            if next_pattern_sequence.pulsestamp - 24 <= pulsestamp:
                 return self._patterns.pop(0).pattern
         else:
             if pulsestamp == self._stop_event:
@@ -82,18 +94,18 @@ class MIDIWrapper:
     BANKS = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H')
 
     def __init__(self, channel, midi_out):
-        self._channel = channel - 1  # TODO: Convert to hex?
+        self._channel = channel - 1
         self._midi_out = midi_out
 
     def change_pattern(self, bank, pattern):
         try:
             bank_number = self.BANKS.index(bank)
         except ValueError:
-            logging.error(f'Cannot change pattern: bank {bank} is invalid')
+            logging.error(f'Cannot change pattern: bank {bank} is invalid.')
         self._midi_out.send_message([
             0xC0 + self._channel,
             (pattern - 1) + bank_number * 16
-        ])  # TODO: Convert to hex?
+        ])
 
     def start(self):
         self._midi_out.send_message([0xFA])
@@ -110,7 +122,7 @@ class SequencerEngine(Thread):
     def __init__(self, sequence, midi_out):
         super().__init__()
         self._sequence = sequence
-        self._midi = MIDIWrapper(0, midi_out)
+        self._midi = MIDIWrapper(1, midi_out)
         self._pulsestamp = 0
         self._stop_event = Event()
         self._pulse_duration = 60.0 / self._sequence.tempo / 24.0
@@ -127,8 +139,6 @@ class SequencerEngine(Thread):
         event = self._sequence.get_event(self._pulsestamp)
         self._midi.change_pattern(event.bank_id, event.pattern_id)
         logging.info(f'[{self.get_position()}] Changing pattern to {event}.')
-        # TODO; Is sleep below useless since introduction of warm-up?
-        sleep(0.25)  # Compensate for Digitakt's lag
 
         # Warm-up
         for pulse in range(24 * 4):
@@ -137,6 +147,7 @@ class SequencerEngine(Thread):
 
         self._midi.start()
         while not self._stop_event.is_set():
+            self._pulse()
             self._midi.clock()
 
             event = self._sequence.get_event(self._pulsestamp)
@@ -144,9 +155,9 @@ class SequencerEngine(Thread):
                 break
             if event:
                 self._midi.change_pattern(event.bank_id, event.pattern_id)
-                logging.info(f'[{self.get_position()}] Changing pattern to {event}.')
+                logging.info(
+                    f'[{self.get_position()}] Changing pattern to {event}.')
 
-            self._pulse()
             self._pulsestamp += 1
 
         self._midi.stop()

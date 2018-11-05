@@ -25,7 +25,11 @@ class SongModeGUI:
 
         # Widgets
 
-        self.position_label = tk.Label(self.root, text='Position: N/A', font=('Menlo', '14'))
+        self.position_label = tk.Label(
+            self.root,
+            text='Position: N/A',
+            font=('Menlo', '14')
+        )
         self.position_label.grid(row=0, column=0, sticky=tk.W, padx=8)
 
         self.toggle_seq_btn = tk.Button(
@@ -82,7 +86,7 @@ class SongModeGUI:
             self.position_label.config(
                 text=f'Position: {self.sequencer.get_position()}'
             )
-            if self.sequencer.get_position() == None:
+            if self.sequencer.get_position() is None:
                 print('get_position() returned None')
         else:
             self.position_label.config(text='Position: N/A')
