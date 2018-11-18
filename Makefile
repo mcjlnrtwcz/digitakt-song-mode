@@ -9,3 +9,6 @@ tests:
 
 style:
 	pycodestyle . --exclude=./lib
+
+sort:
+	isort -rc . -s ./lib

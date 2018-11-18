@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import os
 import json
+import logging
+import os
 import tkinter as tk
 from tkinter import filedialog
-import logging
 
 import rtmidi
-
-from sequencer import Sequencer
+from diquencer import Sequencer
 
 
 class SongModeGUI:
