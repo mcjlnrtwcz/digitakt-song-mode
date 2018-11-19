@@ -1,5 +1,5 @@
 python-rtmidi==1.1.2
-git+https://github.com/mcjlnrtwcz/diquencer.git@v0.1.0
+git+https://github.com/mcjlnrtwcz/diquencer.git@v0.1.1
 
 pycodestyle==2.4.0
 isort==4.3.4

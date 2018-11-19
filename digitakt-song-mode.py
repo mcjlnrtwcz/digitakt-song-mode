@@ -19,7 +19,7 @@ class SongModeGUI:
         # Main window
 
         self.root.geometry('320x160+0+0')
-        self.root.title('Digisong')
+        self.root.title('digitakt-song-mode')
         root.after(0, self.refresh_position)
 
         # Widgets
