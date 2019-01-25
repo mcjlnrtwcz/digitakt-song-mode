@@ -52,6 +52,8 @@ class SongModeGUI:
         self.midi_out_label.grid(row=0, column=0, sticky=tk.W)
 
         self.midi_out_choices = self.sequencer.get_output_ports()
+        if self.midi_out_choices:
+            self.midi_out_name.set(self.midi_out_choices[0])
         self.midi_out_selector = tk.OptionMenu(
             self.midi_out_frame,
             self.midi_out_name,
@@ -79,6 +81,7 @@ class SongModeGUI:
         self.midi_channel_label.grid(row=0, column=0, sticky=tk.W)
 
         self.midi_channel_choices = list(range(1, 17))
+        self.midi_channel.set(1)
         self.midi_channel_selector = tk.OptionMenu(
             self.midi_channel_frame,
             self.midi_channel,
@@ -103,12 +106,9 @@ class SongModeGUI:
         self.root.columnconfigure(1, weight=2)
 
     def refresh_position(self):
-        if self.sequencer.is_playing:
-            self.position_label.config(
-                text=f'Position: {self.sequencer.get_position()}'
-            )
-            if self.sequencer.get_position() is None:
-                print('get_position() returned None')
+        position = self.sequencer.get_position()
+        if self.sequencer.is_playing and position:
+            self.position_label.config(text=f'Position: {position}')
         else:
             self.position_label.config(text='Position: N/A')
         self.root.after(42, self.refresh_position)
