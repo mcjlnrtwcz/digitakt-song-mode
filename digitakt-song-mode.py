@@ -6,7 +6,6 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 
-import rtmidi
 from diquencer import Sequencer
 
 
@@ -55,7 +54,7 @@ class SongModeGUI:
         self.midi_out_label = tk.Label(self.midi_out_frame, text='MIDI output')
         self.midi_out_label.grid(row=0, column=0, sticky=tk.W)
 
-        self.midi_out_choices = self.sequencer.get_midi_outs()
+        self.midi_out_choices = self.sequencer.get_output_ports()
         self.midi_out_selector = tk.OptionMenu(
             self.midi_out_frame,
             self.midi_out_name,
@@ -106,12 +105,8 @@ class SongModeGUI:
         if self.sequencer.is_playing:
             self.sequencer.stop()
         else:
-            try:
-                port_id = self.midi_out_choices.index(self.midi_out_name.get())
-                self.sequencer.set_midi_out(port_id)
-                self.sequencer.start()
-            except ValueError:
-                logging.error('Name of selected MIDI output is invalid.')
+            self.sequencer.set_output_port(self.midi_out_name.get())
+            self.sequencer.start()
 
 
 if __name__ == '__main__':
@@ -119,8 +114,7 @@ if __name__ == '__main__':
         format='[%(asctime)s][%(levelname)s] %(message)s',
         level=logging.INFO
     )
-    midi_out = rtmidi.MidiOut()
-    sequencer = Sequencer(midi_out)
+    sequencer = Sequencer()
     root = tk.Tk()
     gui = SongModeGUI(root, sequencer)
     root.mainloop()
