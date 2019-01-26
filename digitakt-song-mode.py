@@ -9,101 +9,103 @@ from tkinter import filedialog
 from diquencer import Sequencer
 
 
-class SongModeGUI:
+class OutputSelector(tk.Frame):
 
-    def __init__(self, root, sequencer):
-        self.root = root
+    def __init__(self, choices, parent, *args, **kwargs):
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self._output = tk.StringVar(self)
+        self.title = tk.Label(self, text='MIDI output')
+        self.title.grid(row=0, sticky=tk.W)
+        if choices:
+            self._output.set(choices[0])
+        self.selector = tk.OptionMenu(self, self._output, *choices)
+        self.selector.grid(row=1, sticky=tk.W+tk.E)
+
+    @property
+    def output(self):
+        return self._output.get()
+
+
+class ChannelSelector(tk.Frame):
+
+    def __init__(self, parent, *args, **kwargs):
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self._channel = tk.IntVar(self)
+        self.title = tk.Label(self, text='MIDI channel')
+        self.title.grid(row=0, sticky=tk.W)
+        self._channel.set(1)
+        self.selector = tk.OptionMenu(self, self._channel, *list(range(1, 17)))
+        self.selector.grid(row=1, sticky=tk.W+tk.E)
+
+    @property
+    def channel(self):
+        return self._channel.get()
+
+
+class SongModeGUI(tk.Tk):
+
+    def __init__(self, sequencer, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
         self.sequencer = sequencer
 
         # Main window
-        self.root.geometry('320x240+0+0')
-        self.root.title('digitakt-song-mode')
-        root.after(0, self.refresh_position)
+        self.geometry('320x240+0+0')
+        self.title('digitakt-song-mode')
+        self.after(0, self.refresh_position)
 
         # Widgets
         self.position_label = tk.Label(
-            self.root,
+            self,
             text='Position: N/A',
             font=('Menlo', '14')
         )
-        self.position_label.grid(row=0, column=0, sticky=tk.W, padx=8)
+        self.position_label.grid(row=0, sticky=tk.W, padx=8)
 
         self.toggle_seq_btn = tk.Button(
-            self.root,
+            self,
             text='Start/stop',
             command=self.toggle_seq
         )
         self.toggle_seq_btn.grid(row=0, column=1, sticky=tk.E, padx=8)
 
         # MIDI output selector
-        self.midi_out_name = tk.StringVar(self.root)
-
-        self.midi_out_frame = tk.Frame(self.root)
-        self.midi_out_frame.grid(
+        self.output_selector = OutputSelector(
+            self.sequencer.get_output_ports(),
+            self
+        )
+        self.output_selector.grid(
             row=1,
-            column=0,
             columnspan=2,
             sticky=tk.W+tk.E,
             padx=8
         )
-        self.midi_out_frame.columnconfigure(0, weight=1)
-
-        self.midi_out_label = tk.Label(self.midi_out_frame, text='MIDI output')
-        self.midi_out_label.grid(row=0, column=0, sticky=tk.W)
-
-        self.midi_out_choices = self.sequencer.get_output_ports()
-        if self.midi_out_choices:
-            self.midi_out_name.set(self.midi_out_choices[0])
-        self.midi_out_selector = tk.OptionMenu(
-            self.midi_out_frame,
-            self.midi_out_name,
-            *self.midi_out_choices
-        )
-        self.midi_out_selector.grid(row=1, column=0, sticky=tk.W+tk.E)
+        self.output_selector.columnconfigure(0, weight=1)
 
         # MIDI channel selector
-        self.midi_channel = tk.IntVar(self.root)
-
-        self.midi_channel_frame = tk.Frame(self.root)
-        self.midi_channel_frame.grid(
+        self.channel_selector = ChannelSelector(self)
+        self.channel_selector.grid(
             row=2,
-            column=0,
             columnspan=2,
             sticky=tk.W+tk.E,
             padx=8
         )
-        self.midi_channel_frame.columnconfigure(0, weight=1)
-
-        self.midi_channel_label = tk.Label(
-            self.midi_channel_frame,
-            text='MIDI channel'
-        )
-        self.midi_channel_label.grid(row=0, column=0, sticky=tk.W)
-
-        self.midi_channel_choices = list(range(1, 17))
-        self.midi_channel.set(1)
-        self.midi_channel_selector = tk.OptionMenu(
-            self.midi_channel_frame,
-            self.midi_channel,
-            *self.midi_channel_choices
-        )
-        self.midi_channel_selector.grid(row=1, column=0, sticky=tk.W+tk.E)
+        self.channel_selector.columnconfigure(0, weight=1)
 
         # Open sequence
         self.load_btn = tk.Button(
-            self.root,
+            self,
             text='Open sequence',
             command=self.load_file
         )
         self.load_btn.grid(row=3, column=1, sticky=tk.E, padx=8)
 
         # Configure grid
-        self.root.rowconfigure(0, weight=1)
-        self.root.rowconfigure(1, weight=1)
-        self.root.rowconfigure(2, weight=1)
-        self.root.rowconfigure(3, weight=1)
-        self.root.columnconfigure(0, weight=2)
-        self.root.columnconfigure(1, weight=2)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.columnconfigure(0, weight=2)
+        self.columnconfigure(1, weight=2)
 
     def refresh_position(self):
         position = self.sequencer.get_position()
@@ -111,7 +113,7 @@ class SongModeGUI:
             self.position_label.config(text=f'Position: {position}')
         else:
             self.position_label.config(text='Position: N/A')
-        self.root.after(42, self.refresh_position)
+        self.after(42, self.refresh_position)
 
     def load_file(self):
             path = filedialog.askopenfilename(
@@ -126,8 +128,8 @@ class SongModeGUI:
         if self.sequencer.is_playing:
             self.sequencer.stop()
         else:
-            self.sequencer.set_midi_channel(self.midi_channel.get())
-            self.sequencer.set_output_port(self.midi_out_name.get())
+            self.sequencer.set_midi_channel(self.channel_selector.channel)
+            self.sequencer.set_output_port(self.output_selector.output)
             self.sequencer.start()
 
 
@@ -137,6 +139,5 @@ if __name__ == '__main__':
         level=logging.INFO
     )
     sequencer = Sequencer()
-    root = tk.Tk()
-    gui = SongModeGUI(root, sequencer)
-    root.mainloop()
+    gui = SongModeGUI(sequencer)
+    gui.mainloop()
