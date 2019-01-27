@@ -1,17 +1,20 @@
-env:
-	python3 -m venv .venv
-
 install:
-	pip3 install -r requirements.txt
+	pipenv install
 
 install_dev:
-	pip3 install -r requirements-dev.txt
+	pipenv install -d
 
-upgrade:
-	pip3 install -r requirements.txt --upgrade
+uninstall:
+	pipenv --rm
+
+shell:
+	pipenv shell
+
+start:
+	pipenv run python3.6 digitakt-song-mode.py
 
 style:
-	pycodestyle . --exclude=.venv/lib
+	pipenv run pycodestyle .
 
 sort:
-	isort -rc . -s .venv/lib
+	pipenv run isort -rc .

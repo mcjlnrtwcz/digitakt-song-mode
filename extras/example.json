@@ -1,0 +1,19 @@
+{
+    "tempo": 134,
+    "sequence": [
+        {
+            "pattern": 9,
+            "bank": "A",
+            "length": 4,
+            "repetitions": 2,
+            "mutes": [1, 3, 7]
+        },
+        {
+            "pattern": 10,
+            "bank": "A",
+            "length": 4,
+            "repetitions": 2,
+            "mutes": [2, 4, 8]
+        }
+    ]
+}
