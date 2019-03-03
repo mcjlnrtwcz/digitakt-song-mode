@@ -32,8 +32,9 @@ make install_dev
 
 The `Makefile` provides the following convenience targets:
 - `shell`: enter the shell,
-- `style`: check compliance with `pycodestyle`,
-- `sort`: sort imports with `isort`.
+- `format`: auto-format code with `black`,
+- `sort`: sort imports with `isort`,
+- `lint`: check compliance with `flake8`.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
