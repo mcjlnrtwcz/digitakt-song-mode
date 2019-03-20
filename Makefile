@@ -1,8 +1,8 @@
 install:
-	pipenv install
+	pipenv sync
 
 install_dev:
-	pipenv install -d
+	pipenv install --dev
 
 update:
 	pipenv update
