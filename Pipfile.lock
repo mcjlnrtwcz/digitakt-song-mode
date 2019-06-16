@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "935cad3189173d63efc3545bd40c5cdb887d4cbc04b971fe905507d867fa23a5"
+            "sha256": "13aac2be45e08276ffc0c9858bd745fb1f0ce12a693f19b1b8c74b8bc19d8e1d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,7 +18,7 @@
     "default": {
         "diquencer": {
             "git": "https://github.com/mcjlnrtwcz/diquencer.git",
-            "ref": "e91e16857465158afbae614c79bdbead42971f93"
+            "ref": "4eec111d3c71ee09b80d623aa3f71af38cd17b86"
         }
     },
     "develop": {
@@ -68,11 +68,11 @@
         },
         "isort": {
             "hashes": [
-                "sha256:18c796c2cd35eb1a1d3f012a214a542790a1aed95e29768bdcb9f2197eccbd0b",
-                "sha256:96151fca2c6e736503981896495d344781b60d18bfda78dc11b290c6125ebdb6"
+                "sha256:c40744b6bc5162bbb39c1257fe298b7a393861d50978b565f3ccd9cb9de0182a",
+                "sha256:f57abacd059dc3bd666258d1efb0377510a89777fda3e3274e3c01f7c03ae22d"
             ],
             "index": "pypi",
-            "version": "==4.3.15"
+            "version": "==4.3.20"
         },
         "mccabe": {
             "hashes": [

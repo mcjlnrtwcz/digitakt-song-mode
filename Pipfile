@@ -7,7 +7,7 @@ verify_ssl = true
 python_version = "3.6"
 
 [packages]
-diquencer = { git = 'https://github.com/mcjlnrtwcz/diquencer.git', ref = 'v0.4.0' }
+diquencer = { git = 'https://github.com/mcjlnrtwcz/diquencer.git', ref = 'v0.5.0' }
 
 [dev-packages]
 black = "==19.3b0"

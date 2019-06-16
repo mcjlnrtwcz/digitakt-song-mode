@@ -1,6 +1,11 @@
+import logging
 import os
 import tkinter as tk
 from tkinter import filedialog
+
+from diquencer.exceptions import SequencerTransportError
+
+from .utils import display_alert
 
 
 class PatternFrame(tk.Frame):
@@ -36,9 +41,13 @@ class PatternFrame(tk.Frame):
             title="Select sequence to open",
             filetypes=(("JSON files", "*.json"),),
         )
-        if path:
+        if not path:
+            return
+        try:
             self.controller.load(path)
             self.reload_patterns()
+        except SequencerTransportError as error:
+            display_alert(error)
 
     def reload_patterns(self):
         self.pattern_selector.reload_patterns()
@@ -69,8 +78,13 @@ class PatternSelector(tk.Frame):
         self.selector.grid(row=1, sticky=tk.W + tk.E)
 
     def set_start_pattern(self, start_pattern_idx, start_pattern_name):
-        self.start_pattern.set(start_pattern_name)
-        self.controller.set_start_pattern(start_pattern_idx)
+        try:
+            self.controller.set_start_pattern(start_pattern_idx)
+        except SequencerTransportError as error:
+            logging.debug(error)
+            display_alert("Cannot change start pattern while sequencer is running.")
+        else:
+            self.start_pattern.set(start_pattern_name)
 
     def reload_patterns(self):
         menu = self.selector["menu"]

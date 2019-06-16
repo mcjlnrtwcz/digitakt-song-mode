@@ -2,14 +2,18 @@ import json
 
 from diquencer import Sequencer
 
+from view.utils import display_alert
+
+NOT_AVALIABLE = "N/A"
+
 
 class SongModeController:
     def __init__(self):
-        self._sequencer = Sequencer()
+        self._sequencer = Sequencer(error_callback=display_alert)
 
     @property
     def position(self):
-        return self._sequencer.position or "N/A"
+        return self._sequencer.position or NOT_AVALIABLE
 
     @property
     def output_ports(self):
@@ -17,17 +21,17 @@ class SongModeController:
 
     @property
     def current_pattern(self):
-        return self._sequencer.current_pattern or "N/A"
+        return self._sequencer.current_pattern or NOT_AVALIABLE
 
     @property
     def patterns(self):
         if self._sequencer.patterns:
             return [pattern.name for pattern in self._sequencer.patterns]
-        return ["N/A"]
+        return [NOT_AVALIABLE]
 
     @property
     def next_pattern(self):
-        return self._sequencer.next_pattern or "N/A"
+        return self._sequencer.next_pattern or NOT_AVALIABLE
 
     def load(self, sequence_path):
         with open(sequence_path) as sequence_file:

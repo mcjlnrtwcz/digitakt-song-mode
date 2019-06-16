@@ -1,4 +1,9 @@
+import logging
 import tkinter as tk
+
+from diquencer.exceptions import MIDIOutputError
+
+from .utils import display_alert
 
 
 class MIDIFrame(tk.Frame):
@@ -45,7 +50,11 @@ class OutputSelector(Selector):
         )
 
     def option_command(self, new_value):
-        self.controller.set_output_port(new_value)
+        try:
+            self.controller.set_output_port(new_value)
+        except MIDIOutputError as error:
+            logging.debug(error)
+            display_alert("Cannot open MIDI output port.")
 
 
 class ChannelSelector(Selector):
