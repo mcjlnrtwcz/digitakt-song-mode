@@ -1,6 +1,8 @@
 # digitakt-song-mode
 
-digitakt-song-mode is a prototype of a desktop app that provides so-called "song mode" for [Elektron](https://www.elektron.se/) Digitakt sampler. The app should also work for the Digitone synthesizer - it wasn't tested though.
+digitakt-song-mode is a desktop app that provides so-called "song mode" for [Elektron](https://www.elektron.se/) Digitakt sampler. Piece of music can be crated by scheduling patterns (with specified number of repetitions) and managing the mute state of the tracks.
+
+The app should also work for the Digitone synthesizer - it wasn't tested though.
 
 Built with [diquencer](https://github.com/mcjlnrtwcz/diquencer) library for MIDI sequencing.
 
