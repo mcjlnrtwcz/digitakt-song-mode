@@ -1,10 +1,10 @@
 # digitakt-song-mode
 
-digitakt-song-mode is a desktop app that provides so-called "song mode" for [Elektron](https://www.elektron.se/) Digitakt sampler. Piece of music can be crated by scheduling patterns (with specified number of repetitions) and managing the mute state of the tracks.
+`digitakt-song-mode` is a desktop app that provides a so-called "song mode" for [Elektron](https://www.elektron.se/)'s  Digitakt sampler. A piece of music can be created by scheduling patterns (with specified number of repetitions) and managing the mute state of the tracks.
 
-The app should also work for the Digitone synthesizer - it wasn't tested though.
+The app should also work for the Digitone FM synth - it hasn't been tested though.
 
-Built with [diquencer](https://github.com/mcjlnrtwcz/diquencer) library for MIDI sequencing.
+Built with `[diquencer](https://github.com/mcjlnrtwcz/diquencer)` library for MIDI sequencing.
 
 ![screenshot](extras/screenshot.png)
 
@@ -17,17 +17,17 @@ make install
 
 ## Usage
 
-To launch enter the shell and execute Python script.
+To launch, enter the shell and execute the Python script:
 ```bash
 make start
 ```
 
-The songs are stored in JSON files (no editor available yet). See [example](extras/example.json) for reference.
-The `mutes` list determines which tracks should be silent. If all tracks should play leave the list empty.
+Each song is stored in a JSON file (no editor available yet). See [example](extras/example.json) for reference.
+The `mutes` list determines which tracks should be silent. If all tracks should play, leave the list empty.
 
 ## Development
 
-For development purposes you need to install development packages.
+For development purposes you need to install the development packages:
 ```bash
 make install_dev
 ```
